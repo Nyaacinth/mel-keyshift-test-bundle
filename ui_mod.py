@@ -4,7 +4,7 @@ from typing import TypedDict
 
 class FilePathKeyShift(TypedDict):
     file_path: str
-    shift_number: int
+    shift_num: int
 
 def get_filepath_keyshift() -> FilePathKeyShift:
     """Create a UI to get file path and shift number from user."""
