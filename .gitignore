@@ -1,0 +1,12 @@
+# Model File
+pc_nsf_hifigan_44.1k_hop512_128bin_2025.02.onnx
+
+# Build Cache
+build
+dist
+
+# PyCache
+__pycache__
+
+# Virtual Environment
+.venv

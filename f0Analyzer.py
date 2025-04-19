@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 
 import pyworld as pw
-import parselmouth as pm
 
 import numpy as np
 
@@ -91,9 +90,7 @@ class F0Analyzer(nn.Module):
         """
         x = x.to('cpu').numpy()
 
-        if self.f0_extractor == 'parselmouth':
-            f0 = self._extract_f0_parselmouth(x, n_frames, speed)
-        elif self.f0_extractor == 'harvest':
+        if self.f0_extractor == 'harvest':
             f0 = self._extract_f0_harvest(x, n_frames, speed)
         else:
             raise ValueError(f" [x] Unknown f0 extractor: {self.f0_extractor}")

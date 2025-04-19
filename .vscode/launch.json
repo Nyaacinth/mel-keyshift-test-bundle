@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "name": "Python Debugger: Main Entry",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${cwd}${/}main.py",
+            "console": "integratedTerminal"
+        }
+    ]
+}

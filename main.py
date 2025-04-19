@@ -1,11 +1,22 @@
 
 import onnxruntime
 from f0Analyzer import F0Analyzer,resample_align_curve
+from ui_mod import get_filepath_keyshift
 from wav2mel import PitchAdjustableMelSpectrogram
 import dataclasses
 import soundfile as sf
 import numpy as np
 import torch
+import os, sys
+
+def get_resource_path(relative: str):
+    application_path = os.path.abspath(".")
+    if getattr(sys, 'frozen', False):
+        # If the application is run as a bundle, the pyInstaller bootloader
+        # extends the sys module by a flag frozen=True and sets the app 
+        # path into variable _MEIPASS'.
+        application_path = sys._MEIPASS
+    return os.path.join(application_path, relative)
 
 @dataclasses.dataclass
 class Config:
@@ -16,10 +27,10 @@ class Config:
     n_fft: int = 2048
     mel_fmin: float = 40
     mel_fmax: float = 16000.0
-    f0_extractor: str = 'parselmouth'
+    f0_extractor: str = 'harvest'
     f0_min: float = 65
     f0_max: float = 1600
-    vocoder_path: str = r"path/to/vocoder/pc_nsf_hifigan_44.1k_hop512_128bin_2025.02.onnx" #必须使用pc_nsf_hifigan_44.1k_hop512_128bin_2025.02.onnx模型
+    vocoder_path: str = get_resource_path(r"./pc_nsf_hifigan_44.1k_hop512_128bin_2025.02.onnx") #必须使用pc_nsf_hifigan_44.1k_hop512_128bin_2025.02.onnx模型
 def dynamic_range_compression_torch(x, C=1, clip_val=1e-9):
     return torch.log(torch.clamp(x, min=clip_val) * C)
 def wave_to_mel(wave,mel_keyshift,speed):
@@ -105,72 +116,18 @@ def main(wave, mel_keyshift, speed, vocoder_keyshift):
 
 if __name__ == '__main__':
 
-    wave_path = r"path/to/audio.wav"
+    user_inputs = get_filepath_keyshift()
+
+    wave_path = str(user_inputs['file_path'])
     wave, _ = sf.read(wave_path)
 
 
     # test1
-    mel_keyshift = 0 
-    speed = 1
-    vocoder_keyshift = np.zeros(len(wave)//Config.hop_size) + 0
-
-    wave_out = main(wave, mel_keyshift, speed, vocoder_keyshift)
-
-    wave_path_opt = wave_path.replace('.wav', f'_melkeyshift{mel_keyshift}_speed{speed}_vocoderkeyshift{vocoder_keyshift[0]}.wav')
-    sf.write(wave_path_opt, wave_out, Config.sample_rate)
-
-
-    # test2
-    mel_keyshift = 0 
-    speed = 1.5
-    vocoder_keyshift = np.zeros(len(wave)//Config.hop_size) + 0
-
-    wave_out = main(wave, mel_keyshift, speed, vocoder_keyshift)
-
-    wave_path_opt = wave_path.replace('.wav', f'_melkeyshift{mel_keyshift}_speed{speed}_vocoderkeyshift{vocoder_keyshift[0]}.wav')
-    sf.write(wave_path_opt, wave_out, Config.sample_rate)
-
-
-    # test3
-    mel_keyshift = 6
-    speed = 1
-    vocoder_keyshift = np.zeros(len(wave)//Config.hop_size) + 0
-
-    wave_out = main(wave, mel_keyshift, speed, vocoder_keyshift)
-
-    wave_path_opt = wave_path.replace('.wav', f'_melkeyshift{mel_keyshift}_speed{speed}_vocoderkeyshift{vocoder_keyshift[0]}.wav')
-    sf.write(wave_path_opt, wave_out, Config.sample_rate)
-
-    # test4
     mel_keyshift = 0
     speed = 1
-    vocoder_keyshift = np.zeros(len(wave)//Config.hop_size) + 6
+    vocoder_keyshift = np.zeros(len(wave)//Config.hop_size) + int(user_inputs['shift_num'])
 
     wave_out = main(wave, mel_keyshift, speed, vocoder_keyshift)
 
     wave_path_opt = wave_path.replace('.wav', f'_melkeyshift{mel_keyshift}_speed{speed}_vocoderkeyshift{vocoder_keyshift[0]}.wav')
     sf.write(wave_path_opt, wave_out, Config.sample_rate)
-
-    # test5
-    mel_keyshift = 0
-    speed = 1
-    vocoder_keyshift = np.zeros(len(wave)//Config.hop_size) + np.linspace(-12, 12, len(wave)//Config.hop_size)
-
-    wave_out = main(wave, mel_keyshift, speed, vocoder_keyshift)
-
-    wave_path_opt = wave_path.replace('.wav', f'_melkeyshift{mel_keyshift}_speed{speed}_vocoderkeyshift{vocoder_keyshift[0]}.wav')
-    sf.write(wave_path_opt, wave_out, Config.sample_rate)
-
-
-        
-
-
-
-
-
-
-
-
-
-
-
